@@ -1,4 +1,4 @@
-SRCS = main.cpp easybmp/EasyBMP.cpp 
+SRCS = main.cpp
 SRCS_C = $(wildcard costella/*.c)
 
 OBJS := ${SRCS:.cpp=.o}
@@ -6,10 +6,10 @@ OBJS += ${SRCS_C:.c=.o}
 EXE = unblock
 
 CFLAGS = -O3 -Wall -W
-CXXFLAGS = $(CFLAGS) -Ieasybmp -Icostella
+CXXFLAGS = $(CFLAGS) -Icostella
 
 $(EXE): $(OBJS) Makefile
-	g++ -o $@ $(OBJS) -lm
+	g++ -o $@ $(OBJS) -lm -lpng
 
 clean:
 	rm -f $(EXE) $(OBJS)
