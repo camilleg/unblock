@@ -1,16 +1,16 @@
-# UnBlock
+### UnBlock
 
 Remove 8x8-pixel "blocky" artifacts from a heavily compressed JPEG image.
 
-# How to build on Ubuntu
+### How to build on Ubuntu
 
 `make`
 
-# How to run on Ubuntu
+### How to run
 
 `./unblock in.bmp out.bmp`
 
-# Software used
+### Software used
 
 This is a wrapper around an algorithm by [John Costella](http://johncostella.webs.com/unblock/).
 His webpage includes before-and-after pictures showing the algorithm's effectiveness.
@@ -22,11 +22,10 @@ for [AviSynth](http://sourceforge.net/projects/avisynth2/),
 based on John's own 2007 C port of "the Costella libraries."
 
 The .bmp files are read and written by [EasyBMP](http://easybmp.sourceforge.net/).
-Why .bmp and not .jpg for a JPEG utility, you ask?
-Because my source images come from mjpeg-format video,
-and when ffmpeg extracts these frames as .jpg rather than as .bmp, it further degrades them (ick).
-Also, because my later processing prefers .bmp to other formats.
+Why .bmp and not .jpg for a JPEG utility?
+Because my source images are still frames from mjpeg-format video;
+extracting frames as .bmp rather than .jpg with, say, ffmpeg, avoids further degradation.
 
-# Bugs
+### Bugs
 
 Images whose width is not a multiple of 16 pixels may misbehave.
