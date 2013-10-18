@@ -5,6 +5,10 @@ extern "C" {
 #include "costella_unblock.h"
 }
 #include "EasyBMP.h"
+#include <png.h>
+#include <stdlib.h>
+
+struct rgbpixel {unsigned char r,g,b; };
 
 // Actually YCbCr, not YUV.
 // From www.equasys.de/colorconversion.html YCbCr - RGB.
@@ -25,6 +29,8 @@ void RGBfromYUV(double& R, double& G, double& B, double Y, double U, double V)
   B = 1.164 * Y + 2.017 * U;
 }
 
+const bool fPNG = false; // true for PNG, false for BMP
+
 int main( int argc, char** argv)
 {
   if (argc != 3) {
@@ -32,12 +38,30 @@ int main( int argc, char** argv)
     return 1;
   }
 
+  int w, h;
+  FILE *fp;
+  struct rgbpixel **row_pointers;
+  png_structp png_ptr;
+  png_infop info_ptr;
   BMP bmp;
-  bmp.ReadFromFile(argv[1]);
-  const int w = bmp.TellWidth();
-  const int h = bmp.TellHeight();
+  if (fPNG) {
+    fp = fopen(argv[1], "rb");
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    info_ptr = png_create_info_struct(png_ptr);
+    png_init_io(png_ptr, fp);
+    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_ALPHA|PNG_TRANSFORM_EXPAND|PNG_TRANSFORM_STRIP_16, NULL);
+    row_pointers = (struct rgbpixel**)png_get_rows(png_ptr, info_ptr);
+    w = png_get_image_width(png_ptr, info_ptr);
+    h = png_get_image_height(png_ptr, info_ptr);
+    png_destroy_read_struct(&png_ptr, NULL, NULL);
+    fclose(fp);
+  } else {
+    bmp.ReadFromFile(argv[1]);
+    w = bmp.TellWidth();
+    h = bmp.TellHeight();
+  }
 
-  // Convert bmp.rgb_data to YUV color planes.
+  // Convert bmp.rgb_data or row_pointers to YUV color planes.
   const unsigned cb = w * h;
   unsigned char bufY[cb];
   unsigned char bufU[cb];
@@ -47,10 +71,18 @@ int main( int argc, char** argv)
   int i=0;
   for (y = 0; y < h; ++y) {
     for (x = 0; x < w; ++x,++i) {
-      const RGBApixel* rgb = bmp(x,y);
-      const double R = rgb->Red;
-      const double G = rgb->Green;
-      const double B = rgb->Blue;
+      double R,G,B;
+      if (fPNG) {
+	const rgbpixel rgb = row_pointers[y][x];
+	R = rgb.r;
+	G = rgb.g;
+	B = rgb.b;
+      } else {
+	const RGBApixel* rgb = bmp(x,y);
+	R = rgb->Red;
+	G = rgb->Green;
+	B = rgb->Blue;
+      }
       double Y,U,V;
       YUVfromRGB(Y,U,V,R,G,B);
 
@@ -107,12 +139,29 @@ int main( int argc, char** argv)
     for (x = 0; x < w; ++x,++i) {
       double R,G,B;
       RGBfromYUV(R,G,B, bufY[i], bufU[i], bufV[i]);
-      RGBApixel* rgb = bmp(x,y);
-      rgb->Red   = COSTELLA_IMAGE_LIMIT_RANGE(R);
-      rgb->Green = COSTELLA_IMAGE_LIMIT_RANGE(G);
-      rgb->Blue  = COSTELLA_IMAGE_LIMIT_RANGE(B);
+      if (fPNG) {
+	row_pointers[y][x] = (rgbpixel){
+	  COSTELLA_IMAGE_LIMIT_RANGE(R),
+	  COSTELLA_IMAGE_LIMIT_RANGE(G),
+	  COSTELLA_IMAGE_LIMIT_RANGE(B) };
+      } else {
+	RGBApixel* rgb = bmp(x,y);
+	rgb->Red   = COSTELLA_IMAGE_LIMIT_RANGE(R);
+	rgb->Green = COSTELLA_IMAGE_LIMIT_RANGE(G);
+	rgb->Blue  = COSTELLA_IMAGE_LIMIT_RANGE(B);
+      }
     }
   }
-  bmp.WriteToFile(argv[2]);
+  if (fPNG) {
+    fp = fopen(argv[2], "wb");
+    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_init_io(png_ptr, fp);
+    png_set_rows(png_ptr, info_ptr, (png_bytepp)row_pointers);
+    png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    fclose(fp);
+  } else {
+    bmp.WriteToFile(argv[2]);
+  }
   return 0;
 }

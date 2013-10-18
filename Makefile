@@ -9,7 +9,7 @@ CFLAGS = -O3 -Wall -W
 CXXFLAGS = $(CFLAGS) -Ieasybmp -Icostella
 
 $(EXE): $(OBJS) Makefile
-	g++ -o $@ $(OBJS) -lm
+	g++ -o $@ $(OBJS) -lpng -lm
 
 clean:
 	rm -f $(EXE) $(OBJS)
