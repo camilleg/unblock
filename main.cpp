@@ -6,7 +6,8 @@ extern "C" {
 }
 #include "EasyBMP.h"
 #include <png.h>
-#include <stdlib.h>
+#include <algorithm>
+#include <cstdlib>
 
 struct rgbpixel {unsigned char r,g,b; };
 
@@ -29,31 +30,43 @@ void RGBfromYUV(double& R, double& G, double& B, double Y, double U, double V)
   B = 1.164 * Y + 2.017 * U;
 }
 
-const bool fPNG = false; // true for PNG, false for BMP
+std::string filenameExtension(const std::string& s)
+{
+  const std::string::size_type i = s.find_last_of(".");
+  if (i == std::string::npos)
+    return "";
+  std::string ext(s.substr(i + 1));
+  std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+  return ext;
+}
 
 int main( int argc, char** argv)
 {
   if (argc != 3) {
-    printf("usage: %s in.bmp out.bmp\n", argv[0]);
+    printf("usage: %s in.[bmp|png] out.[bmp|png]\n", argv[0]);
     return 1;
   }
 
+  if (filenameExtension(argv[1]) != filenameExtension(argv[2]))
+    printf("%s: warning: filenames %s and %s have different extensions.\n", argv[0], argv[1], argv[2]);
+  const bool fPNG = filenameExtension(argv[1]) == "png";
+
   int w, h;
   FILE *fp;
-  struct rgbpixel **row_pointers;
-  png_structp png_ptr;
-  png_infop info_ptr;
+  struct rgbpixel **ppRowPNG = NULL;
+  png_structp pPNG;
+  png_infop pInfoPNG;
   BMP bmp;
   if (fPNG) {
     fp = fopen(argv[1], "rb");
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    info_ptr = png_create_info_struct(png_ptr);
-    png_init_io(png_ptr, fp);
-    png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_ALPHA|PNG_TRANSFORM_EXPAND|PNG_TRANSFORM_STRIP_16, NULL);
-    row_pointers = (struct rgbpixel**)png_get_rows(png_ptr, info_ptr);
-    w = png_get_image_width(png_ptr, info_ptr);
-    h = png_get_image_height(png_ptr, info_ptr);
-    png_destroy_read_struct(&png_ptr, NULL, NULL);
+    pPNG = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    pInfoPNG = png_create_info_struct(pPNG);
+    png_init_io(pPNG, fp);
+    png_read_png(pPNG, pInfoPNG, PNG_TRANSFORM_STRIP_ALPHA|PNG_TRANSFORM_EXPAND|PNG_TRANSFORM_STRIP_16, NULL);
+    ppRowPNG = (struct rgbpixel**)png_get_rows(pPNG, pInfoPNG);
+    w = png_get_image_width(pPNG, pInfoPNG);
+    h = png_get_image_height(pPNG, pInfoPNG);
+    png_destroy_read_struct(&pPNG, NULL, NULL);
     fclose(fp);
   } else {
     bmp.ReadFromFile(argv[1]);
@@ -61,7 +74,7 @@ int main( int argc, char** argv)
     h = bmp.TellHeight();
   }
 
-  // Convert bmp.rgb_data or row_pointers to YUV color planes.
+  // Convert bmp.rgb_data or ppRowPNG to YUV color planes.
   const unsigned cb = w * h;
   unsigned char bufY[cb];
   unsigned char bufU[cb];
@@ -73,7 +86,7 @@ int main( int argc, char** argv)
     for (x = 0; x < w; ++x,++i) {
       double R,G,B;
       if (fPNG) {
-	const rgbpixel rgb = row_pointers[y][x];
+	const rgbpixel rgb = ppRowPNG[y][x];
 	R = rgb.r;
 	G = rgb.g;
 	B = rgb.b;
@@ -140,7 +153,7 @@ int main( int argc, char** argv)
       double R,G,B;
       RGBfromYUV(R,G,B, bufY[i], bufU[i], bufV[i]);
       if (fPNG) {
-	row_pointers[y][x] = (rgbpixel){
+	ppRowPNG[y][x] = (rgbpixel){
 	  COSTELLA_IMAGE_LIMIT_RANGE(R),
 	  COSTELLA_IMAGE_LIMIT_RANGE(G),
 	  COSTELLA_IMAGE_LIMIT_RANGE(B) };
@@ -154,11 +167,11 @@ int main( int argc, char** argv)
   }
   if (fPNG) {
     fp = fopen(argv[2], "wb");
-    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    png_init_io(png_ptr, fp);
-    png_set_rows(png_ptr, info_ptr, (png_bytepp)row_pointers);
-    png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
-    png_destroy_write_struct(&png_ptr, &info_ptr);
+    pPNG = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    png_init_io(pPNG, fp);
+    png_set_rows(pPNG, pInfoPNG, (png_bytepp)ppRowPNG);
+    png_write_png(pPNG, pInfoPNG, PNG_TRANSFORM_IDENTITY, NULL);
+    png_destroy_write_struct(&pPNG, &pInfoPNG);
     fclose(fp);
   } else {
     bmp.WriteToFile(argv[2]);
