@@ -31,6 +31,10 @@ Because my source images are still frames from mjpeg-format video.
 Extracting frames in a lossless format avoids the further degradation that happens with
 `ffmpeg -i in.avi -vcodec jpg ...`.
 
+The article
+[Stitched Panoramas from Toy Airborne Video Cameras](http://arxiv.org/abs/1311.6500) (arXiv:1311.6500 [cs.CV])
+demonstrates an application of this software.
+
 ### Bugs
 
 An image whose width is not a multiple of 16 pixels may misbehave.
