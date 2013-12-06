@@ -33,7 +33,8 @@ Extracting frames in a lossless format avoids the further degradation that happe
 
 The article
 [Stitched Panoramas from Toy Airborne Video Cameras](http://arxiv.org/abs/1311.6500) (arXiv:1311.6500 [cs.CV])
-demonstrates an application of this software.
+demonstrates an application of this software.  A summary of this article is published in the
+[MIT Technology Review](http://www.technologyreview.com/view/522276/the-future-of-photography-cameras-with-wings-or-rotors/).
 
 ### Bugs
 
