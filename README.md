@@ -31,9 +31,9 @@ Because my source images are still frames from mjpeg-format video.
 Extracting frames in a lossless format avoids the further degradation that happens with
 `ffmpeg -i in.avi -vcodec jpg ...`.
 
-The article
-[Stitched Panoramas from Toy Airborne Video Cameras](http://arxiv.org/abs/1311.6500) (arXiv:1311.6500 [cs.CV])
-demonstrates an application of this software.  A summary of this article is published in the
+The journal article
+[Stitched Panoramas from Low-Cost Airborne Video Cameras](http://uasjournal.org/volume-two/technical-paper/stitched-panoramas-low-cost-airborne-video-cameras)
+demonstrates an application of this software.  A preprint thereof is summarized in the
 [MIT Technology Review](http://www.technologyreview.com/view/522276/the-future-of-photography-cameras-with-wings-or-rotors/).
 
 ### Bugs
