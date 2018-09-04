@@ -15,7 +15,7 @@ Remove 8x8-pixel "blocky" artifacts from a heavily compressed JPEG image.
 ### Software used
 
 This is a wrapper around an algorithm by John Costella.
-His [webpage](http://johncostella.webs.com/unblock/)
+His [webpage](http://johncostella.com/unblock/)
 includes before-and-after pictures showing the algorithm's effectiveness.
 
 Instead of porting John's C# source code to C/C++,
