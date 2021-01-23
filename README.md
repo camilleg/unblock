@@ -33,8 +33,8 @@ Extracting frames in a lossless format avoids the further degradation that happe
 
 The journal article
 [Stitched Panoramas from Low-Cost Airborne Video Cameras](http://uasjournal.org/volume-two/technical-paper/stitched-panoramas-low-cost-airborne-video-cameras)
-demonstrates an application of this software.  A preprint thereof is summarized in the
-[MIT Technology Review](http://www.technologyreview.com/view/522276/the-future-of-photography-cameras-with-wings-or-rotors/).
+demonstrates an application of this software.  The article is summarized in the
+[MIT Technology Review](https://www.technologyreview.com/2013/12/04/175236/the-future-of-photography-cameras-with-wings-or-rotors/).
 
 ### Bugs
 
