@@ -13,3 +13,6 @@ $(EXE): $(OBJS) Makefile
 
 clean:
 	rm -f $(EXE) $(OBJS)
+
+test: $(EXE)
+	./testcases.sh
