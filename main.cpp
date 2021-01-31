@@ -50,13 +50,18 @@ std::string filenameExtension(const std::string& s)
 int main(int argc, char** argv)
 {
   if (argc != 3) {
+LUsage:
     printf("usage: %s in.[bmp|png] out.[bmp|png]\n", argv[0]);
     return 1;
   }
-
-  if (filenameExtension(argv[1]) != filenameExtension(argv[2]))
+  const auto ext1 = filenameExtension(argv[1]);
+  const auto ext2 = filenameExtension(argv[2]);
+  const bool fBMP = ext1 == "bmp";
+  const bool fPNG = ext1 == "png";
+  if (!fBMP && !fPNG)
+    goto LUsage;
+  if (ext2 != ext1)
     printf("%s: warning: filenames %s and %s have different extensions.\nFile %s will get the same format as %s.\n", argv[0], argv[1], argv[2], argv[2], argv[1]);
-  const bool fBMP = filenameExtension(argv[1]) == "bmp";
 
   FILE *fp;
   unsigned w, h;
