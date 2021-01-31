@@ -948,8 +948,8 @@ static COSTELLA_FUNCTION( CostellaUnblockComputeVerticalDiscrepancies, (
     udTotalLuminance, udTotalChrominance;
   COSTELLA_IMAGE_GRAY* pig;
   COSTELLA_IMAGE_COLOR* pic;
-  COSTELLA_IMAGE_COLOR_PIXEL icp, icpStart;
-  COSTELLA_IMAGE_GRAY_PIXEL igp, igpStart;
+  COSTELLA_IMAGE_COLOR_PIXEL icp={0}, icpStart={0};
+  COSTELLA_IMAGE_GRAY_PIXEL igp=NULL, igpStart=NULL;
 
 
   /* Extract information.
@@ -1395,8 +1395,8 @@ static COSTELLA_FUNCTION( CostellaUnblockComputeHorizontalDiscrepancies, (
     udTotalLuminance, udTotalChrominance;
   COSTELLA_IMAGE_GRAY* pig;
   COSTELLA_IMAGE_COLOR* pic;
-  COSTELLA_IMAGE_COLOR_PIXEL icp, icpStart;
-  COSTELLA_IMAGE_GRAY_PIXEL igp, igpStart;
+  COSTELLA_IMAGE_COLOR_PIXEL icp={0}, icpStart={0};
+  COSTELLA_IMAGE_GRAY_PIXEL igp=NULL, igpStart=NULL;
 
 
   /* Extract information.
@@ -1830,9 +1830,9 @@ static COSTELLA_FUNCTION( CostellaUnblockCorrectVerticalDiscrepancies, (
   COSTELLA_IMAGE_ALPHA* piaIn, * piaOut;
   COSTELLA_IMAGE_GRAY* pigIn, * pigOut;
   COSTELLA_IMAGE_COLOR* picIn, * picOut;
-  COSTELLA_IMAGE_ALPHA_PIXEL iapInStart, iapOutStart, iapIn, iapOut;
-  COSTELLA_IMAGE_GRAY_PIXEL igpInStart, igpOutStart, igpIn, igpOut;
-  COSTELLA_IMAGE_COLOR_PIXEL icpInStart, icpOutStart, icpIn, icpOut;
+  COSTELLA_IMAGE_ALPHA_PIXEL iapInStart=NULL, iapOutStart=NULL, iapIn=NULL, iapOut=NULL;
+  COSTELLA_IMAGE_GRAY_PIXEL igpInStart=NULL, igpOutStart=NULL, igpIn=NULL, igpOut=NULL;
+  COSTELLA_IMAGE_COLOR_PIXEL icpInStart={0}, icpOutStart={0}, icpIn={0}, icpOut={0};
 
 
   /* Extract information.
@@ -2434,8 +2434,8 @@ static COSTELLA_FUNCTION( CostellaUnblockCorrectHorizontalDiscrepancies, (
   COSTELLA_IMAGE_GRAY* pigIn, * pigOut;
   COSTELLA_IMAGE_COLOR* picIn, * picOut;
   COSTELLA_IMAGE_ALPHA_PIXEL iapInStart, iapOutStart, iapIn, iapOut;
-  COSTELLA_IMAGE_GRAY_PIXEL igpInStart, igpOutStart, igpIn, igpOut;
-  COSTELLA_IMAGE_COLOR_PIXEL icpInStart, icpOutStart, icpIn, icpOut;
+  COSTELLA_IMAGE_GRAY_PIXEL igpInStart=NULL, igpOutStart=NULL, igpIn=NULL, igpOut=NULL;
+  COSTELLA_IMAGE_COLOR_PIXEL icpInStart={0}, icpOutStart={0}, icpIn={0}, icpOut={0};
   
 
   /* Extract information.

@@ -991,7 +991,6 @@ bool BMP::ReadFromFile( const char* FileName )
    // read the three bit masks
 
    ebmpWORD TempMaskWORD;
-   ebmpWORD ZeroWORD;
   
    SafeFread( (char*) &RedMask , 2 , 1 , fp );
    if( IsBigEndian() )
@@ -1721,8 +1720,8 @@ ebmpBYTE BMP::FindClosestColor( RGBApixel& input )
 {
  using namespace std;
  
- int i=0;
- int NumberOfColors = TellNumberOfColors();
+ unsigned i=0;
+ const unsigned NumberOfColors = TellNumberOfColors();
  ebmpBYTE BestI = 0;
  int BestMatch = 999999;
   
