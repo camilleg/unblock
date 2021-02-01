@@ -6,7 +6,7 @@ OBJS += ${SRCS_C:.c=.o}
 EXE = unblock
 
 CFLAGS = -O3 -Wall -W
-CXXFLAGS = $(CFLAGS) -Ieasybmp -Icostella
+CXXFLAGS = $(CFLAGS) -std=c++11 -Ieasybmp -Icostella
 
 $(EXE): $(OBJS) Makefile
 	g++ -o $@ $(OBJS) -lpng -lm
