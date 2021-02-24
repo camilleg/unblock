@@ -9,7 +9,7 @@ extern "C" {
 #include <algorithm>
 #include <cstdlib>
 
-typedef unsigned char u8;
+typedef uint8_t u8;
 
 // Actually YCbCr, not YUV.
 // From www.equasys.de/colorconversion.html YCbCr - RGB.
@@ -92,7 +92,7 @@ LUsage:
     h = png_get_image_height(pPNG, pInfoPNG);
     pRows = new png_bytep[h];
     const auto cb = png_get_rowbytes(pPNG, pInfoPNG);
-    for (unsigned y = 0; y < h; ++y)
+    for (unsigned y = 0u; y < h; ++y)
       pRows[y] = new png_byte[cb];
     png_read_image(pPNG, pRows);
     fclose(fp);
@@ -106,8 +106,8 @@ LUsage:
   u8 bufV[cb];
   unsigned y, x;
   auto i = 0;
-  for (y = 0; y < h; ++y) {
-    for (x = 0; x < w; ++x,++i) {
+  for (y = 0u; y < h; ++y) {
+    for (x = 0u; x < w; ++x,++i) {
       double R,G,B;
       if (fBMP) {
 	const auto rgb = bmp(x,y);
@@ -158,8 +158,8 @@ LUsage:
   // Those call macros like COSTELLA_IMAGE_CONVERT_RGB_TO_YCBCR(),
   // which lookup tables like gasdCostellaImageConvertRCb[] for Red to Cb.)
   i = 0;
-  for (y = 0; y < h; ++y) {
-    for (x = 0; x < w; ++x,++i) {
+  for (y = 0u; y < h; ++y) {
+    for (x = 0u; x < w; ++x,++i) {
       u8 R,G,B;
       RGBfromYUV(R,G,B, bufY[i],bufU[i],bufV[i]);
       if (fBMP) {
