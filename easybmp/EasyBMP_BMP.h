@@ -54,6 +54,9 @@ class BMP
  
  ebmpBYTE FindClosestColor( RGBApixel& input );
 
+ // Disable assigment operator, because of pointer members.
+ BMP& operator=(const BMP&) = delete;
+
  public: 
 
  int TellBitDepth( void );

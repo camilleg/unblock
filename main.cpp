@@ -9,15 +9,15 @@ extern "C" {
 #include <algorithm>
 #include <cstdlib>
 
-typedef uint8_t u8;
+using u8 = uint8_t;
 
 // Actually YCbCr, not YUV.
 // From www.equasys.de/colorconversion.html YCbCr - RGB.
 void YUVfromRGB(u8& Y, u8& U, u8& V, const double R, const double G, const double B)
 {
-  const double y =  0.257 * R + 0.504 * G + 0.098 * B +  16;
-  const double u = -0.148 * R - 0.291 * G + 0.439 * B + 128;
-  const double v =  0.439 * R - 0.368 * G - 0.071 * B + 128;
+  const auto y =  0.257 * R + 0.504 * G + 0.098 * B +  16;
+  const auto u = -0.148 * R - 0.291 * G + 0.439 * B + 128;
+  const auto v =  0.439 * R - 0.368 * G - 0.071 * B + 128;
   // Clamp to [0, 255].
   Y = COSTELLA_IMAGE_LIMIT_RANGE(y);
   U = COSTELLA_IMAGE_LIMIT_RANGE(u);
@@ -28,9 +28,9 @@ void RGBfromYUV(u8& R, u8& G, u8& B, double Y, double U, double V)
   Y -= 16;
   U -= 128;
   V -= 128;
-  const double r = 1.164 * Y             + 1.596 * V;
-  const double g = 1.164 * Y - 0.392 * U - 0.813 * V;
-  const double b = 1.164 * Y + 2.017 * U;
+  const auto r = 1.164 * Y             + 1.596 * V;
+  const auto g = 1.164 * Y - 0.392 * U - 0.813 * V;
+  const auto b = 1.164 * Y + 2.017 * U;
   // Clamp to [0, 255].
   R = COSTELLA_IMAGE_LIMIT_RANGE(r);
   G = COSTELLA_IMAGE_LIMIT_RANGE(g);
@@ -147,8 +147,7 @@ LUsage:
   const auto fPhoto = 0; // API docs suggest 1, but that boosts ringing of high-contrast detail (timestamps, windows of buildings).
   // (Internal mucking about, in costella_unblock.c bConservativePhotographic tweaking udCumMeasuredConservative,
   // had either no effect or caused a segfault.)
-  auto ok = costella_unblock(&im, &im, fPhoto, 0, NULL, NULL, 0);
-  if (!ok)
+  if (!costella_unblock(&im, &im, fPhoto, 0, NULL, NULL, 0))
     printf("%s: costella_unblock() failed.\n", argv[0]);
   costella_unblock_finalize(stdout);
 
