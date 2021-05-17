@@ -12,12 +12,12 @@ extern "C" {
 using u8 = uint8_t;
 
 // Actually YCbCr, not YUV.
-// From www.equasys.de/colorconversion.html YCbCr - RGB.
+// From https://web.archive.org/web/20180423091842/http://www.equasys.de/colorconversion.html YCbCr - RGB.
 void YUVfromRGB(u8& Y, u8& U, u8& V, const double R, const double G, const double B)
 {
-  const auto y =  0.257 * R + 0.504 * G + 0.098 * B +  16;
-  const auto u = -0.148 * R - 0.291 * G + 0.439 * B + 128;
-  const auto v =  0.439 * R - 0.368 * G - 0.071 * B + 128;
+  const auto y =  0.257 * R + 0.504 * G + 0.098 * B +  16.0;
+  const auto u = -0.148 * R - 0.291 * G + 0.439 * B + 128.0;
+  const auto v =  0.439 * R - 0.368 * G - 0.071 * B + 128.0;
   // Clamp to [0, 255].
   Y = COSTELLA_IMAGE_LIMIT_RANGE(y);
   U = COSTELLA_IMAGE_LIMIT_RANGE(u);
@@ -25,9 +25,9 @@ void YUVfromRGB(u8& Y, u8& U, u8& V, const double R, const double G, const doubl
 }
 void RGBfromYUV(u8& R, u8& G, u8& B, double Y, double U, double V)
 {
-  Y -= 16;
-  U -= 128;
-  V -= 128;
+  Y -=  16.0;
+  U -= 128.0;
+  V -= 128.0;
   const auto r = 1.164 * Y             + 1.596 * V;
   const auto g = 1.164 * Y - 0.392 * U - 0.813 * V;
   const auto b = 1.164 * Y + 2.017 * U;
