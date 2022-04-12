@@ -550,7 +550,7 @@ bool BMP::WriteToFile( const char* FileName )
  }
  
  // write the pixels 
- int i,j;
+ int j;
  if( BitDepth != 16 )
  {  
   ebmpBYTE* Buffer;
@@ -631,7 +631,7 @@ bool BMP::WriteToFile( const char* FileName )
   for( j=Height-1 ; j >= 0 ; j-- )
   {
    // write all row pixel data
-   i=0;
+   int i=0;
    int WriteNumber = 0;
    while( WriteNumber < DataBytes )
    {
@@ -854,10 +854,6 @@ bool BMP::ReadFromFile( const char* FileName )
  double dBytesPerPixel = ( (double) BitDepth ) / 8.0;
  double dBytesPerRow = dBytesPerPixel * (Width+0.0);
  dBytesPerRow = ceil(dBytesPerRow);
-  
- int BytePaddingPerRow = 4 - ( (int) (dBytesPerRow) )% 4;
- if( BytePaddingPerRow == 4 )
- { BytePaddingPerRow = 0; }  
  
  // if < 16 bits, read the palette
  
@@ -1596,13 +1592,12 @@ bool BMP::Read4bitRow(  ebmpBYTE* Buffer, int BufferSize, int Row )
  int Masks[2]  = {240,15};
  
  int i=0;
- int j;
  int k=0;
  if( Width > 2*BufferSize )
  { return false; }
  while( i < Width )
  {
-  j=0;
+  int j=0;
   while( j < 2 && i < Width )
   {
    int Index = (int) ( (Buffer[k]&Masks[j]) >> Shifts[j]);
@@ -1838,21 +1833,18 @@ bool Rescale( BMP& InputImage , char mode, int NewDimension )
  InputImage.SetSize( NewWidth, NewHeight );
  InputImage.SetBitDepth( 24 );
 
- int I,J;
- double ThetaI,ThetaJ;
- 
+ int I;
+ double ThetaI;
  for( int j=0; j < NewHeight-1 ; j++ )
  {
-  ThetaJ = (double)(j*(OldHeight-1.0))
-          /(double)(NewHeight-1.0);
-  J	= (int) floor( ThetaJ );
+  double ThetaJ = j*(OldHeight-1.0) / (NewHeight-1.0);
+  const int J = floor(ThetaJ);
   ThetaJ -= J;  
   
   for( int i=0; i < NewWidth-1 ; i++ )
   {
-   ThetaI = (double)(i*(OldWidth-1.0))
-           /(double)(NewWidth-1.0);
-   I = (int) floor( ThetaI );
+   ThetaI = i*(OldWidth-1.0) / (NewWidth-1.0);
+   I = floor(ThetaI);
    ThetaI -= I;  
    
    InputImage(i,j)->Red = (ebmpBYTE) 

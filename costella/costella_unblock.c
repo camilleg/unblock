@@ -3146,9 +3146,8 @@ static COSTELLA_FUNCTION( CostellaUnblockCorrectDiscrepancies, (
   COSTELLA_SW* asw, COSTELLA_SW swU, COSTELLA_SW swV ) )
 {
   COSTELLA_SW swD1, swD2, swD3, swD4, swD5, swD6, swD7, swD8, swD9, swD10, 
-    swD11, swD12, swD13, swD14, swD15, swD16, swD2U, swD3U, swD4U, swD5U, 
-    swD6U, swD7U, swD8U, swD1V, swD2V, swD3V, swD4V, swD5V, swD6V, swD7V, 
-    swD8V;
+    swD11, swD12, swD13, swD14, swD15, swD16,
+    swD1V, swD2V, swD3V, swD4V, swD5V, swD6V, swD7V, swD8V;
   COSTELLA_SW* psw;
 
 
@@ -3157,13 +3156,13 @@ static COSTELLA_FUNCTION( CostellaUnblockCorrectDiscrepancies, (
 
   if( swU )
   {
-    swD2U = COSTELLA_SHIFT_RIGHT_FLOOR( swU + 32, 6 );
-    swD3U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult3Add32[ swU ], 6 );
-    swD4U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult3Add16[ swU ], 5 );
-    swD5U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult5Add16[ swU ], 5 );
-    swD6U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult15Add32[ swU ], 6 );
-    swD7U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult21Add32[ swU ], 6 );
-    swD8U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult7Add8[ swU ], 4 );
+    COSTELLA_SW swD2U = COSTELLA_SHIFT_RIGHT_FLOOR( swU + 32, 6 );
+    COSTELLA_SW swD3U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult3Add32[ swU ], 6 );
+    COSTELLA_SW swD4U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult3Add16[ swU ], 5 );
+    COSTELLA_SW swD5U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult5Add16[ swU ], 5 );
+    COSTELLA_SW swD6U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult15Add32[ swU ], 6 );
+    COSTELLA_SW swD7U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult21Add32[ swU ], 6 );
+    COSTELLA_SW swD8U = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult7Add8[ swU ], 4 );
 
     swD1 = 0;
     swD2 = swD2U;
@@ -3508,10 +3507,7 @@ static COSTELLA_UD costella_unblock_approx_square_root( COSTELLA_UD ud )
   return (COSTELLA_UD) ubSquareRoot << ( ubBitsToHalve >> 1 );
 }
 
-
-
 #ifdef COSTELLA_UNBLOCK_DEBUG_DUMP
-
   /* CostellaUnblockDebugDump: 
   **
   **   Dumping of frequency tables to text files for debugging purposes.
@@ -3522,6 +3518,7 @@ static COSTELLA_UD costella_unblock_approx_square_root( COSTELLA_UD ud )
   **   bColor:  Color flag.
   */
 
+#include <stdio.h>
   void CostellaUnblockDebugDump( COSTELLA_UB* aubYAdjustedU, COSTELLA_UB* 
     aubYAdjustedV, COSTELLA_UB* aubCbAdjustedU, COSTELLA_UB* aubCbAdjustedV,
     COSTELLA_UB* aubCrAdjustedU, COSTELLA_UB* aubCrAdjustedV, COSTELLA_UD* 
@@ -3532,50 +3529,24 @@ static COSTELLA_UD costella_unblock_approx_square_root( COSTELLA_UD ud )
     audCrBoundaryU, COSTELLA_UD* audCrBoundaryV, COSTELLA_B bVertical, 
     COSTELLA_B bColor )
   {
-    #include <stdio.h>
-  
-    FILE* pfile;
-    COSTELLA_UW uw;
-    COSTELLA_UD udYUIntCum = 0, udYUBoundCum = 0, udYVIntCum = 0, 
-      udYVBoundCum = 0, ulCbUIntCum = 0, ulCbUBoundCum = 0, ulCbVIntCum = 
-      0, ulCbVBoundCum = 0, ulCrUIntCum = 0, ulCrUBoundCum = 0, ulCrVIntCum 
-      = 0, ulCrVBoundCum = 0;
-    char ac[ 1024 ];
-
-
-    /* Open file.
-    */
-
-    if( bVertical )
-    {
-      pfile = fopen( "vertical.txt", "wt" );
-    }
-    else
-    {
-      pfile = fopen( "horizontal.txt", "wt" );
-    }
-
-
-    /* Check if we were successful.
-    */
-
+    FILE* pfile = fopen(bVertical ? "vertical.txt" : "horizontal.txt", "wt");
     if( pfile )
     {
-      /* Switch on color mode.
-      */
+      COSTELLA_UW uw;
+      COSTELLA_UD udYUIntCum = 0, udYUBoundCum = 0, udYVIntCum = 0,
+	udYVBoundCum = 0, ulCbUIntCum = 0, ulCbUBoundCum = 0, ulCbVIntCum =
+	0, ulCbVBoundCum = 0, ulCrUIntCum = 0, ulCrUBoundCum = 0, ulCrVIntCum
+	= 0, ulCrVBoundCum = 0;
 
       if( !bColor )
       {
         /* Grayscale. Write header line.
         */
-
         fprintf( pfile, "value\tu adj\tv adj\tu int\tu bnd\tu int cum\t"
           "u bnd cum\tv int\tv bnd\tv int cum\tv bnd cum\n" );
 
-
         /* Write out the other lines.
         */
-
         for( uw = 0; uw < 256; uw++ )
         {
           udYUIntCum += audYInternalU[ uw ];
@@ -3583,13 +3554,11 @@ static COSTELLA_UD costella_unblock_approx_square_root( COSTELLA_UD ud )
           udYVIntCum += audYInternalV[ uw ];
           udYVBoundCum += audYBoundaryV[ uw ];
 
-          sprintf( ac, "%u\t%u\t%u\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t"
+          fprintf(pfile, "%u\t%u\t%u\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t"
             "%ld\n", uw, (unsigned int) aubYAdjustedU[ uw ], (unsigned int) 
             aubYAdjustedV[ uw ], audYInternalU[ uw ], audYBoundaryU[ uw ], 
             udYUIntCum, udYUBoundCum, audYInternalV[ uw ], audYBoundaryV[ uw
             ], udYVIntCum, udYVBoundCum );
-
-          fprintf( pfile, ac );
         }
       }
       else
@@ -3627,7 +3596,7 @@ static COSTELLA_UD costella_unblock_approx_square_root( COSTELLA_UD ud )
           ulCrVIntCum += audCrInternalV[ uw ];
           ulCrVBoundCum += audCrBoundaryV[ uw ];
           
-          sprintf( ac, "%u\t%u\t%u\t%u\t%u\t%u\t%u\t"
+          fprintf(pfile, "%u\t%u\t%u\t%u\t%u\t%u\t%u\t"
             "%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu"
             "\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu"
             "\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\n", uw, (unsigned int)
@@ -3643,22 +3612,14 @@ static COSTELLA_UD costella_unblock_approx_square_root( COSTELLA_UD ud )
             audCrBoundaryU[ uw ], ulCrUIntCum, ulCrUBoundCum, 
             audCrInternalV[ uw ], audCrBoundaryV[ uw ], ulCrVIntCum, 
             ulCrVBoundCum );
-
-          fprintf( pfile, ac );
         }
       }
-
-
-      /* Close the file.
-      */
 
       fclose( pfile );
     }
   }
 
 #endif
-
-
 
 /* Copyright (c) 2005-2007 John P. Costella.
 **
