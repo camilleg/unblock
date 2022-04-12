@@ -47,6 +47,7 @@ BMFH::BMFH()
  bfType = 19778;
  bfReserved1 = 0;
  bfReserved2 = 0;
+ bfSize = -1;
 }
 
 void BMFH::SwitchEndianess( void )
@@ -56,7 +57,6 @@ void BMFH::SwitchEndianess( void )
  bfReserved1 = FlipWORD( bfReserved1 );
  bfReserved2 = FlipWORD( bfReserved2 );
  bfOffBits = FlipDWORD( bfOffBits );
- return;
 }
 
 BMIH::BMIH()
@@ -67,6 +67,7 @@ BMIH::BMIH()
  biYPelsPerMeter = DefaultYPelsPerMeter;
  biClrUsed = 0;
  biClrImportant = 0;
+ biSize = -1;
 }
 
 void BMIH::SwitchEndianess( void )
@@ -445,7 +446,6 @@ bool BMP::WriteToFile( const char* FileName )
    cout << "EasyBMP Error: Cannot open file " 
         << FileName << " for output." << endl;
   }
-  fclose( fp );
   return false;
  }
   
@@ -606,7 +606,7 @@ bool BMP::WriteToFile( const char* FileName )
   ebmpWORD BlueMask = 31;    // bits 12-16
   ebmpWORD GreenMask = 2016; // bits 6-11
   ebmpWORD RedMask = 63488;  // bits 1-5
-  ebmpWORD ZeroWORD;
+  ebmpWORD ZeroWORD = 0;
   
   if( IsBigEndian() )
   { RedMask = FlipWORD( RedMask ); }
@@ -635,13 +635,10 @@ bool BMP::WriteToFile( const char* FileName )
    int WriteNumber = 0;
    while( WriteNumber < DataBytes )
    {
-    ebmpWORD TempWORD;
-	
 	ebmpWORD RedWORD = (ebmpWORD) ((Pixels[i][j]).Red / 8);
 	ebmpWORD GreenWORD = (ebmpWORD) ((Pixels[i][j]).Green / 4);
 	ebmpWORD BlueWORD = (ebmpWORD) ((Pixels[i][j]).Blue / 8);
-	
-    TempWORD = (RedWORD<<11) + (GreenWORD<<5) + BlueWORD;
+    ebmpWORD TempWORD = (RedWORD<<11) + (GreenWORD<<5) + BlueWORD;
 	if( IsBigEndian() )
 	{ TempWORD = FlipWORD( TempWORD ); }
 	
@@ -653,7 +650,7 @@ bool BMP::WriteToFile( const char* FileName )
    WriteNumber = 0;
    while( WriteNumber < PaddingBytes )
    {
-    ebmpBYTE TempBYTE;
+    ebmpBYTE TempBYTE = 0;
     fwrite( (char*) &TempBYTE , 1, 1, fp);
     WriteNumber++;
    }
