@@ -3555,17 +3555,15 @@ static COSTELLA_UD costella_unblock_approx_square_root( COSTELLA_UD ud )
           udYVBoundCum += audYBoundaryV[ uw ];
 
           fprintf(pfile, "%u\t%u\t%u\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t%lu\t"
-            "%ld\n", uw, (unsigned int) aubYAdjustedU[ uw ], (unsigned int) 
-            aubYAdjustedV[ uw ], audYInternalU[ uw ], audYBoundaryU[ uw ], 
+            "%lu\n", uw, (unsigned int) aubYAdjustedU[ uw ], (unsigned int)
+            aubYAdjustedV[ uw ], audYInternalU[ uw ], audYBoundaryU[ uw ],
             udYUIntCum, udYUBoundCum, audYInternalV[ uw ], audYBoundaryV[ uw
             ], udYVIntCum, udYVBoundCum );
         }
       }
       else
       {
-        /* Color. Write header line.
-        */
-
+        /* Color. */
         fprintf( pfile, "value\ty u adj\ty v adj\tcb u adj\tcb v adj\t"
           "cbr u adj\tcr v adj\t"
           "y u i\ty u b\ty u i cum\ty u b cum\t"
@@ -3574,10 +3572,6 @@ static COSTELLA_UD costella_unblock_approx_square_root( COSTELLA_UD ud )
           "cb v i\tcb v b\tcb v i cum\tcb v b cum\t"
           "cr u i\tcr u b\tcr u i cum\tcr u b cum\t" 
           "cr v i\tcr v b\tcr v i cum\tcr v b cum\n" );
-
-
-        /* Write out the other lines.
-        */
 
         for( uw = 0; uw < 256; uw++ )
         {
