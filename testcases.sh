@@ -10,15 +10,15 @@ die() { echo "$1"; exit 1; }
 
 run() {
   cmd="../unblock $1 $2"
-  eval $cmd || die "Command failed: $cmd"
+  eval "$cmd" || die "Command failed: $cmd"
   [ ! -f "$2" ] && die "No output from: $cmd"
   [ ! -s "$2" ] && die "Empty output from: $cmd"
   cmp -s ../test-ok/"$2" "$2" || die "Output $2 differs from expected ../test-ok/$2"
 }
 
 for i in 1 2; do
-  run ../test-ok/in$i.bmp out$i.bmp
-  run ../test-ok/in$i.png out$i.png
+  run "../test-ok/in$i.bmp" "out$i.bmp"
+  run "../test-ok/in$i.png" "out$i.png"
 done
 
 # upscale x2 will be a separate test case, for 16x16.
