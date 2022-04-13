@@ -3146,10 +3146,8 @@ static COSTELLA_FUNCTION( CostellaUnblockCorrectDiscrepancies, (
   COSTELLA_SW* asw, COSTELLA_SW swU, COSTELLA_SW swV ) )
 {
   COSTELLA_SW swD1, swD2, swD3, swD4, swD5, swD6, swD7, swD8, swD9, swD10, 
-    swD11, swD12, swD13, swD14, swD15, swD16,
-    swD1V, swD2V, swD3V, swD4V, swD5V, swD6V, swD7V, swD8V;
+    swD11, swD12, swD13, swD14, swD15, swD16;
   COSTELLA_SW* psw;
-
 
   /* Compute corrections.
   */
@@ -3203,14 +3201,14 @@ static COSTELLA_FUNCTION( CostellaUnblockCorrectDiscrepancies, (
 
   if( swV )
   {
-    swD1V = COSTELLA_SHIFT_RIGHT_FLOOR( -swV + 128, 8 );
-    swD2V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM11Add128[ swV ], 8 );
-    swD3V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM31Add128[ swV ], 8 ); 
-    swD4V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM58Add128[ swV ], 8 );
-    swD5V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM57Add128[ swV ], 8 );
-    swD6V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM22Add128[ swV ], 8 );
-    swD7V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult42Add128[ swV ], 8 );
-    swD8V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult138Add128[ swV ], 8 );
+    COSTELLA_SW swD1V = COSTELLA_SHIFT_RIGHT_FLOOR( -swV + 128, 8 );
+    COSTELLA_SW swD2V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM11Add128[ swV ], 8 );
+    COSTELLA_SW swD3V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM31Add128[ swV ], 8 );
+    COSTELLA_SW swD4V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM58Add128[ swV ], 8 );
+    COSTELLA_SW swD5V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM57Add128[ swV ], 8 );
+    COSTELLA_SW swD6V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMultM22Add128[ swV ], 8 );
+    COSTELLA_SW swD7V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult42Add128[ swV ], 8 );
+    COSTELLA_SW swD8V = COSTELLA_SHIFT_RIGHT_FLOOR( gaswMult138Add128[ swV ], 8 );
 
     swD1 += swD1V;
     swD2 += swD2V;
