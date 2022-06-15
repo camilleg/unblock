@@ -2,15 +2,23 @@
 
 Remove 8x8-pixel "blocky" artifacts from a heavily compressed JPEG image.
 
-### How to build on Ubuntu
+### How to build on Ubuntu 18 through 22
+
+`sudo apt install g++ libpng-dev make`
 
 `make`
+
+This also works on Windows 10 or 11, within [WSL](https://docs.microsoft.com/en-us/windows/wsl/install-win10).
 
 ### How to run
 
 `./unblock in.bmp out.bmp`
 
 `./unblock in.png out.png`
+
+### How to test
+
+`make test`
 
 ### Software used
 
