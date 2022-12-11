@@ -37,15 +37,12 @@ int IntPow( int base, int exponent );
  typedef unsigned int  ebmpDWORD;
 #endif
 
-#ifndef _EasyBMP_DataStructures_h_
-#define _EasyBMP_DataStructures_h_
+#pragma once
 
 inline bool IsBigEndian()
 {
  short word = 0x0001;
- if((*(char *)& word) != 0x01 )
- { return true; }
- return false;
+ return (*(char*)&word) != 0x01;
 }
 
 inline ebmpWORD FlipWORD( ebmpWORD in )
@@ -57,11 +54,6 @@ inline ebmpDWORD FlipDWORD( ebmpDWORD in )
           ((in&0x00FF0000)>>8 ) | ((in&0x0000FF00)<<8 )   );
 }
 
-// it's easier to use a struct than a class
-// because we can read/write all four of the bytes 
-// at once (as we can count on them being continuous 
-// in memory
-
 typedef struct RGBApixel {
 	ebmpBYTE Blue;
 	ebmpBYTE Green;
@@ -69,8 +61,7 @@ typedef struct RGBApixel {
 	ebmpBYTE Alpha;
 } RGBApixel; 
 
-class BMFH{
-public:
+struct BMFH{
  ebmpWORD  bfType;
  ebmpDWORD bfSize;
  ebmpWORD  bfReserved1;
@@ -78,12 +69,11 @@ public:
  ebmpDWORD bfOffBits; 
 
  BMFH();
- void display( void );
- void SwitchEndianess( void );
+ void display();
+ void SwitchEndianess();
 };
 
-class BMIH{
-public:
+struct BMIH{
  ebmpDWORD biSize;
  ebmpDWORD biWidth;
  ebmpDWORD biHeight;
@@ -97,8 +87,8 @@ public:
  ebmpDWORD biClrImportant;
 
  BMIH();
- void display( void );
- void SwitchEndianess( void );
+ void display();
+ void SwitchEndianess();
 };
 
-#endif
+// vim: ts=4 sw=4

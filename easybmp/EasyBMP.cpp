@@ -49,7 +49,8 @@ BMFH::BMFH():
  bfType(19778),
  bfSize(-1),
  bfReserved1(0),
- bfReserved2(0)
+ bfReserved2(0),
+ bfOffBits(0)
 {
 }
 
@@ -64,8 +65,12 @@ void BMFH::SwitchEndianess( void )
 
 BMIH::BMIH():
  biSize(-1),
+ biWidth(0),
+ biHeight(0),
  biPlanes(1),
+ biBitCount(0),
  biCompression(0),
+ biSizeImage(0),
  biXPelsPerMeter(DefaultXPelsPerMeter),
  biYPelsPerMeter(DefaultYPelsPerMeter),
  biClrUsed(0),
