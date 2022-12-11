@@ -23,6 +23,12 @@
 
 #include "EasyBMP.h"
 
+#include <bit> // std::endian
+constexpr bool IsBigEndian = std::endian::native == std::endian::big;
+
+using std::cout;
+using std::endl;
+
 /* These functions are defined in EasyBMP.h */
 
 bool EasyBMPwarnings = true;
@@ -96,7 +102,6 @@ void BMIH::SwitchEndianess( void )
 
 void BMIH::display( void )
 {
- using namespace std;
  cout << "biSize: " << (int) biSize << endl
       << "biWidth: " << (int) biWidth << endl
       << "biHeight: " << (int) biHeight << endl
@@ -112,7 +117,6 @@ void BMIH::display( void )
 
 void BMFH::display( void )
 {
- using namespace std;
  cout << "bfType: " << (int) bfType << endl
       << "bfSize: " << (int) bfSize << endl
       << "bfReserved1: " << (int) bfReserved1 << endl
@@ -124,7 +128,6 @@ void BMFH::display( void )
 
 RGBApixel BMP::GetPixel( int i, int j ) const
 {
- using namespace std;
  bool Warn = false;
  if( i >= Width )
  { i = Width-1; Warn = true; }
@@ -152,7 +155,6 @@ bool BMP::SetPixel( int i, int j, RGBApixel NewPixel )
 
 bool BMP::SetColor( int ColorNumber , RGBApixel NewColor )
 {
- using namespace std;
  if( BitDepth != 1 && BitDepth != 4 && BitDepth != 8 )
  {
   if( EasyBMPwarnings )
@@ -195,7 +197,6 @@ RGBApixel BMP::GetColor( int ColorNumber )
  Output.Blue  = 255;
  Output.Alpha = 0;
  
- using namespace std;
  if( BitDepth != 1 && BitDepth != 4 && BitDepth != 8 )
  {
   if( EasyBMPwarnings )
@@ -318,7 +319,6 @@ BMP::~BMP()
 
 RGBApixel* BMP::operator()(int i, int j)
 {
- using namespace std;
  bool Warn = false;
  if( i >= Width )
  { i = Width-1; Warn = true; }
@@ -360,7 +360,6 @@ int BMP::TellNumberOfColors( void )
 
 bool BMP::SetBitDepth( int NewDepth )
 {
- using namespace std;
  if( NewDepth != 1 && NewDepth != 4 && 
      NewDepth != 8 && NewDepth != 16 && 
      NewDepth != 24 && NewDepth != 32 )
@@ -391,7 +390,6 @@ bool BMP::SetBitDepth( int NewDepth )
 
 bool BMP::SetSize(int NewWidth , int NewHeight )
 {
- using namespace std;
  if( NewWidth <= 0 || NewHeight <= 0 )
  {
   if( EasyBMPwarnings )
@@ -432,7 +430,6 @@ bool BMP::SetSize(int NewWidth , int NewHeight )
 
 bool BMP::WriteToFile( const char* FileName )
 {
- using namespace std;
  if( !EasyBMPcheckDataSize() )
  {
   if( EasyBMPwarnings )
@@ -489,7 +486,7 @@ bool BMP::WriteToFile( const char* FileName )
  bmfh.bfReserved2 = 0; 
  bmfh.bfOffBits = (ebmpDWORD) (14+40+dPaletteSize);  
  
- if( IsBigEndian() )
+ if( IsBigEndian )
  { bmfh.SwitchEndianess(); }
  
  fwrite( (char*) &(bmfh.bfType) , sizeof(ebmpWORD) , 1 , fp );
@@ -524,7 +521,7 @@ bool BMP::WriteToFile( const char* FileName )
  if( BitDepth == 16 )
  { bmih.biCompression = 3; }
  
- if( IsBigEndian() )
+ if( IsBigEndian )
  { bmih.SwitchEndianess(); }
  
  fwrite( (char*) &(bmih.biSize) , sizeof(ebmpDWORD) , 1 , fp );
@@ -616,17 +613,17 @@ bool BMP::WriteToFile( const char* FileName )
   ebmpWORD RedMask = 63488;  // bits 1-5
   ebmpWORD ZeroWORD = 0;
   
-  if( IsBigEndian() )
+  if( IsBigEndian )
   { RedMask = FlipWORD( RedMask ); }
   fwrite( (char*) &RedMask , 2 , 1 , fp );
   fwrite( (char*) &ZeroWORD , 2 , 1 , fp );
 
-  if( IsBigEndian() )
+  if( IsBigEndian )
   { GreenMask = FlipWORD( GreenMask ); }
   fwrite( (char*) &GreenMask , 2 , 1 , fp );
   fwrite( (char*) &ZeroWORD , 2 , 1 , fp );
 
-  if( IsBigEndian() )
+  if( IsBigEndian )
   { BlueMask = FlipWORD( BlueMask ); }
   fwrite( (char*) &BlueMask , 2 , 1 , fp );
   fwrite( (char*) &ZeroWORD , 2 , 1 , fp );
@@ -647,7 +644,7 @@ bool BMP::WriteToFile( const char* FileName )
 	ebmpWORD GreenWORD = (ebmpWORD) ((Pixels[i][j]).Green / 4);
 	ebmpWORD BlueWORD = (ebmpWORD) ((Pixels[i][j]).Blue / 8);
     ebmpWORD TempWORD = (RedWORD<<11) + (GreenWORD<<5) + BlueWORD;
-	if( IsBigEndian() )
+	if( IsBigEndian )
 	{ TempWORD = FlipWORD( TempWORD ); }
 	
     fwrite( (char*) &TempWORD , 2, 1, fp);
@@ -672,7 +669,6 @@ bool BMP::WriteToFile( const char* FileName )
 
 bool BMP::ReadFromFile( const char* FileName )
 { 
- using namespace std;
  if( !EasyBMPcheckDataSize() )
  {
   if( EasyBMPwarnings )
@@ -702,15 +698,12 @@ bool BMP::ReadFromFile( const char* FileName )
  // read the file header 
  
  BMFH bmfh;
- bool NotCorrupted = true;
- 
- NotCorrupted &= SafeFread( (char*) &(bmfh.bfType) , sizeof(ebmpWORD), 1, fp);
+ bool NotCorrupted = SafeFread((char*)&(bmfh.bfType), sizeof(ebmpWORD), 1, fp);
  
  bool IsBitmap = false;
- 
- if( IsBigEndian() && bmfh.bfType == 16973 )
+ if( IsBigEndian && bmfh.bfType == 16973 )
  { IsBitmap = true; }
- if( !IsBigEndian() && bmfh.bfType == 19778 )
+ if( !IsBigEndian && bmfh.bfType == 19778 )
  { IsBitmap = true; }
  
  if( !IsBitmap ) 
@@ -728,12 +721,10 @@ bool BMP::ReadFromFile( const char* FileName )
  NotCorrupted &= SafeFread( (char*) &(bmfh.bfReserved1) , sizeof(ebmpWORD) , 1, fp);
  NotCorrupted &= SafeFread( (char*) &(bmfh.bfReserved2) , sizeof(ebmpWORD) , 1, fp);
  NotCorrupted &= SafeFread( (char*) &(bmfh.bfOffBits) , sizeof(ebmpDWORD) , 1 , fp);
- 
- if( IsBigEndian() ) 
+ if( IsBigEndian )
  { bmfh.SwitchEndianess(); }
   
  // read the info header
-
  BMIH bmih; 
  
  NotCorrupted &= SafeFread( (char*) &(bmih.biSize) , sizeof(ebmpDWORD) , 1 , fp);
@@ -749,7 +740,7 @@ bool BMP::ReadFromFile( const char* FileName )
  NotCorrupted &= SafeFread( (char*) &(bmih.biClrUsed) , sizeof(ebmpDWORD) , 1 , fp);
  NotCorrupted &= SafeFread( (char*) &(bmih.biClrImportant) , sizeof(ebmpDWORD) , 1 , fp);
  
- if( IsBigEndian() ) 
+ if( IsBigEndian )
  { bmih.SwitchEndianess(); }
 
  // a safety catch: if any of the header information didn't read properly, abort
@@ -994,17 +985,17 @@ bool BMP::ReadFromFile( const char* FileName )
    ebmpWORD TempMaskWORD;
   
    SafeFread( (char*) &RedMask , 2 , 1 , fp );
-   if( IsBigEndian() )
+   if( IsBigEndian )
    { RedMask = FlipWORD(RedMask); }
    SafeFread( (char*) &TempMaskWORD , 2, 1, fp );
   
    SafeFread( (char*) &GreenMask , 2 , 1 , fp );
-   if( IsBigEndian() )
+   if( IsBigEndian )
    { GreenMask = FlipWORD(GreenMask); }
    SafeFread( (char*) &TempMaskWORD , 2, 1, fp );
 
    SafeFread( (char*) &BlueMask , 2 , 1 , fp );
-   if( IsBigEndian() )
+   if( IsBigEndian )
    { BlueMask = FlipWORD(BlueMask); }
    SafeFread( (char*) &TempMaskWORD , 2, 1, fp );
   }
@@ -1049,7 +1040,7 @@ bool BMP::ReadFromFile( const char* FileName )
    {
 	ebmpWORD TempWORD;
 	SafeFread( (char*) &TempWORD , 2 , 1 , fp );
-	if( IsBigEndian() )
+	if( IsBigEndian )
 	{ TempWORD = FlipWORD(TempWORD); }
     ReadNumber += 2;
   
@@ -1084,7 +1075,6 @@ bool BMP::ReadFromFile( const char* FileName )
 
 bool BMP::CreateStandardColorTable( void )
 {
- using namespace std;
  if( BitDepth != 1 && BitDepth != 4 && BitDepth != 8 )
  {
   if( EasyBMPwarnings )
@@ -1248,7 +1238,6 @@ bool BMP::CreateStandardColorTable( void )
   Colors[i].Red = 255;
   Colors[i].Green = 255;
   Colors[i].Blue = 255;
-  
   return true;
  }
  return true;
@@ -1256,14 +1245,7 @@ bool BMP::CreateStandardColorTable( void )
 
 bool SafeFread( char* buffer, int size, int number, FILE* fp )
 {
- using namespace std;
- int ItemsRead;
- if( feof(fp) )
- { return false; }
- ItemsRead = (int) fread( buffer , size , number , fp );
- if( ItemsRead < number )
- { return false; }
- return true;
+ return !feof(fp) && (int)fread(buffer, size, number, fp) >= number;
 }
 
 void BMP::SetDPI( int HorizontalDPI, int VerticalDPI )
@@ -1292,12 +1274,8 @@ int BMP::TellHorizontalDPI( void )
 
 BMFH GetBMFH( const char* szFileNameIn )
 {
- using namespace std;
  BMFH bmfh;
-
- FILE* fp;
- fp = fopen( szFileNameIn,"rb");
- 
+ FILE* fp = fopen( szFileNameIn,"rb");
  if( !fp  )
  {
   if( EasyBMPwarnings )
@@ -1318,22 +1296,16 @@ BMFH GetBMFH( const char* szFileNameIn )
  SafeFread( (char*) &(bmfh.bfOffBits) , sizeof(ebmpDWORD) , 1 , fp ); 
  
  fclose( fp );
- 
- if( IsBigEndian() )
+ if( IsBigEndian )
  { bmfh.SwitchEndianess(); }
-
  return bmfh;
 }
 
 BMIH GetBMIH( const char* szFileNameIn )
 {
- using namespace std;
  BMFH bmfh;
  BMIH bmih;
-
- FILE* fp;
- fp = fopen( szFileNameIn,"rb");
-
+ FILE* fp = fopen( szFileNameIn,"rb");
  if( !fp  )
  {
   if( EasyBMPwarnings )
@@ -1347,7 +1319,6 @@ BMIH GetBMIH( const char* szFileNameIn )
  } 
  
  // read the bmfh, i.e., first 14 bytes (just to get it out of the way);
- 
  ebmpBYTE TempBYTE;
  int i;
  for( i = 14 ; i > 0 ; i-- )
@@ -1370,19 +1341,14 @@ BMIH GetBMIH( const char* szFileNameIn )
  SafeFread( (char*) &(bmih.biClrImportant) , sizeof(ebmpDWORD) , 1 , fp ); 
  
  fclose( fp );
- 
- if( IsBigEndian() )
+ if( IsBigEndian )
  { bmih.SwitchEndianess(); }
-
  return bmih;
 }
 
 void DisplayBitmapInfo( const char* szFileNameIn )
 {
- using namespace std;
- FILE* fp;
- fp = fopen( szFileNameIn,"rb");
- 
+ FILE* fp = fopen( szFileNameIn,"rb");
  if( !fp  )
  {
   if( EasyBMPwarnings )
@@ -1523,7 +1489,6 @@ void RangedPixelToPixelCopyTransparent(
 
 bool CreateGrayscaleColorTable( BMP& InputImage )
 {
- using namespace std;
  int BitDepth = InputImage.TellBitDepth();
  if( BitDepth != 1 && BitDepth != 4 && BitDepth != 8 )
  {
@@ -1714,8 +1679,6 @@ bool BMP::Write1bitRow(  ebmpBYTE* Buffer, int BufferSize, int Row )
 
 ebmpBYTE BMP::FindClosestColor( RGBApixel& input )
 {
- using namespace std;
- 
  unsigned i=0;
  const unsigned NumberOfColors = TellNumberOfColors();
  ebmpBYTE BestI = 0;
@@ -1738,7 +1701,6 @@ ebmpBYTE BMP::FindClosestColor( RGBApixel& input )
 
 bool EasyBMPcheckDataSize( void )
 {
- using namespace std;
  bool ReturnValue = true;
  if( sizeof( ebmpBYTE ) != 1 )
  {
@@ -1775,11 +1737,7 @@ bool EasyBMPcheckDataSize( void )
 
 bool Rescale( BMP& InputImage , char mode, int NewDimension )
 {
- using namespace std;
  int CapMode = toupper( mode );
-
- BMP OldImage( InputImage );
- 
  if( CapMode != 'P' &&
      CapMode != 'W' &&
      CapMode != 'H' && 
@@ -1797,6 +1755,7 @@ bool Rescale( BMP& InputImage , char mode, int NewDimension )
  int NewWidth  =0;
  int NewHeight =0;
  
+ BMP OldImage( InputImage );
  int OldWidth = OldImage.TellWidth();
  int OldHeight= OldImage.TellHeight();
  

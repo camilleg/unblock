@@ -39,12 +39,6 @@ int IntPow( int base, int exponent );
 
 #pragma once
 
-inline bool IsBigEndian()
-{
- short word = 0x0001;
- return (*(char*)&word) != 0x01;
-}
-
 inline ebmpWORD FlipWORD( ebmpWORD in )
 { return ( (in >> 8) | (in << 8) ); }
 
