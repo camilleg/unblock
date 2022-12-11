@@ -18,6 +18,9 @@
 *                                                *
 *************************************************/
 
+// Version 1.06 from 2006 Dec 1 is still the newest as of 11 Dec 2022,
+// per http://easybmp.sourceforge.net which itself is dated 2011.
+
 #include "EasyBMP.h"
 
 /* These functions are defined in EasyBMP.h */
@@ -42,12 +45,12 @@ int IntPow( int base, int exponent )
  return output;
 }
 
-BMFH::BMFH()
+BMFH::BMFH():
+ bfType(19778),
+ bfSize(-1),
+ bfReserved1(0),
+ bfReserved2(0)
 {
- bfType = 19778;
- bfReserved1 = 0;
- bfReserved2 = 0;
- bfSize = -1;
 }
 
 void BMFH::SwitchEndianess( void )
@@ -59,15 +62,15 @@ void BMFH::SwitchEndianess( void )
  bfOffBits = FlipDWORD( bfOffBits );
 }
 
-BMIH::BMIH()
+BMIH::BMIH():
+ biSize(-1),
+ biPlanes(1),
+ biCompression(0),
+ biXPelsPerMeter(DefaultXPelsPerMeter),
+ biYPelsPerMeter(DefaultYPelsPerMeter),
+ biClrUsed(0),
+ biClrImportant(0)
 {
- biPlanes = 1;
- biCompression = 0;
- biXPelsPerMeter = DefaultXPelsPerMeter;  
- biYPelsPerMeter = DefaultYPelsPerMeter;
- biClrUsed = 0;
- biClrImportant = 0;
- biSize = -1;
 }
 
 void BMIH::SwitchEndianess( void )
@@ -916,7 +919,7 @@ bool BMP::ReadFromFile( const char* FileName )
  // This code reads 1, 4, 8, 24, and 32-bpp files 
  // with a more-efficient buffered technique.
 
- int i,j;
+ int j;
  if( BitDepth != 16 )
  {
   int BufferSize = (int) ( (Width*BitDepth) / 8.0 );
@@ -1033,10 +1036,9 @@ bool BMP::ReadFromFile( const char* FileName )
   { TempShiftWORD = TempShiftWORD>>1; RedShift++; }  
   
   // read the actual pixels
-  
   for( j=Height-1 ; j >= 0 ; j-- )
   {
-   i=0;
+   int i=0;
    int ReadNumber = 0;
    while( ReadNumber < DataBytes )
    {
@@ -1607,18 +1609,15 @@ bool BMP::Read4bitRow(  ebmpBYTE* Buffer, int BufferSize, int Row )
 }
 bool BMP::Read1bitRow(  ebmpBYTE* Buffer, int BufferSize, int Row )
 {
- int Shifts[8] = {7  ,6 ,5 ,4 ,3,2,1,0};
- int Masks[8]  = {128,64,32,16,8,4,2,1};
- 
- int i=0;
- int j;
- int k=0;
- 
  if( Width > 8*BufferSize )
  { return false; }
+ int Shifts[8] = {7  ,6 ,5 ,4 ,3,2,1,0};
+ int Masks[8]  = {128,64,32,16,8,4,2,1};
+ int i=0;
+ int k=0;
  while( i < Width )
  {
-  j=0;
+  int j=0;
   while( j < 8 && i < Width )
   {
    int Index = (int) ( (Buffer[k]&Masks[j]) >> Shifts[j]);
@@ -1891,3 +1890,5 @@ bool Rescale( BMP& InputImage , char mode, int NewDimension )
  *InputImage(NewWidth-1,NewHeight-1) = *OldImage(OldWidth-1,OldHeight-1);
  return true;
 }
+
+// vim: ts=4 sw=4
