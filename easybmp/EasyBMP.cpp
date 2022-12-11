@@ -1634,13 +1634,12 @@ bool BMP::Write4bitRow(  ebmpBYTE* Buffer, int BufferSize, int Row )
  int PositionWeights[2]  = {16,1};
  
  int i=0;
- int j;
  int k=0;
  if( Width > 2*BufferSize )
  { return false; }
  while( i < Width )
  {
-  j=0;
+  int j=0;
   int Index = 0;
   while( j < 2 && i < Width )
   {
@@ -1658,13 +1657,12 @@ bool BMP::Write1bitRow(  ebmpBYTE* Buffer, int BufferSize, int Row )
  int PositionWeights[8]  = {128,64,32,16,8,4,2,1};
  
  int i=0;
- int j;
  int k=0;
  if( Width > 8*BufferSize )
  { return false; }
  while( i < Width )
  {
-  j=0;
+  int j=0;
   int Index = 0;
   while( j < 8 && i < Width )
   {
