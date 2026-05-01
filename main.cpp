@@ -100,10 +100,11 @@ LUsage:
   }
 
   // Convert bmp.rgb_data or pRows to YUV color planes.
+  // On the heap, because even a 3 megapixel image overflows the stack.
   const auto cb = w * h;
-  u8 bufY[cb];
-  u8 bufU[cb];
-  u8 bufV[cb];
+  auto bufY = new u8[cb];
+  auto bufU = new u8[cb];
+  auto bufV = new u8[cb];
   unsigned y, x;
   auto i = 0;
   for (y = 0u; y < h; ++y) {
@@ -190,5 +191,8 @@ LUsage:
     fclose(fp);
     png_destroy_write_struct(&pPNG, &pInfoPNG);
   }
+  delete [] bufY;
+  delete [] bufU;
+  delete [] bufV;
   return 0;
 }
