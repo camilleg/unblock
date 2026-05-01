@@ -13,7 +13,14 @@ run() {
   eval "$cmd" || die "Command failed: $cmd"
   [ ! -f "$2" ] && die "No output from: $cmd"
   [ ! -s "$2" ] && die "Empty output from: $cmd"
-  cmp -s ../test-ok/"$2" "$2" || die "Output $2 differs from expected ../test-ok/$2"
+  # Extract the pixels and compare only those.
+  # Ignore the metadata, which changes with the libpng version.
+  t1="1.ppm"
+  t2="2.ppm"
+  convert "../test-ok/$2" "$t1"
+  convert            "$2" "$t2"
+  cmp -s "$t1" "$t2" || die "Output $2 differs from expected ../test-ok/$2"
+  rm -f  "$t1" "$t2"
 }
 
 for i in 1 2; do
