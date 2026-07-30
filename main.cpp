@@ -47,6 +47,44 @@ std::string filenameExtension(const std::string& s)
   return ext;
 }
 
+struct PNG {
+  unsigned w = 0;
+  unsigned h = 0;
+  u8* pixels = nullptr;
+  ~PNG() { delete [] pixels; }
+};
+
+bool read_png(PNG& dst, const char* path)
+{
+  dst.w = dst.h = 0; // invalidate
+  png_image src;
+  std::memset(&src, 0, sizeof(src));
+  src.version = PNG_IMAGE_VERSION;
+  if (!png_image_begin_read_from_file(&src, path))
+    return false;
+  src.format = PNG_FORMAT_RGB;
+
+  dst.pixels = new u8[PNG_IMAGE_SIZE(src)];
+  if (!png_image_finish_read(&src, nullptr, dst.pixels, 0, nullptr))
+    return false;
+  dst.w = src.width; // validate
+  dst.h = src.height;
+  png_image_free(&src);
+  return true;
+}
+
+bool write_png(const PNG& src, const char* path) {
+  png_image dst;
+  std::memset(&dst, 0, sizeof(dst));
+  dst.version = PNG_IMAGE_VERSION;
+  dst.width = src.w;
+  dst.height = src.h;
+  dst.format = PNG_FORMAT_RGB;
+  const bool ok = png_image_write_to_file(&dst, path, 0, src.pixels, 0, nullptr) != 0;
+  png_image_free(&dst);
+  return ok;
+}
+
 int main(int argc, char** argv)
 {
   if (argc != 3) {
@@ -63,43 +101,21 @@ LUsage:
   if (ext2 != ext1)
     printf("%s: warning: filenames %s and %s have different extensions.\nFile %s will get the same format as %s.\n", argv[0], argv[1], argv[2], argv[2], argv[1]);
 
-  FILE *fp;
   unsigned w, h;
   BMP bmp;
-  png_bytep *pRows = NULL;
+  PNG png;
 
   if (fBMP) {
     bmp.ReadFromFile(argv[1]);
     w = bmp.TellWidth();
     h = bmp.TellHeight();
   } else {
-    fp = fopen(argv[1], "rb");
-    auto pPNG = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    auto pInfoPNG = png_create_info_struct(pPNG);
-    png_init_io(pPNG, fp);
-    png_read_info(pPNG, pInfoPNG);
-    if (png_get_color_type(pPNG, pInfoPNG) != PNG_COLOR_TYPE_RGB) {
-      // Alpha, grayscale, and palette formats wouldn't have come from a JPG.
-      printf("%s: png file %s isn't in RGB format.\n", argv[0], argv[1]);
-      return 1;
-    }
-    // Transform 16 bit to 8 bit.
-    if (png_get_bit_depth(pPNG, pInfoPNG) == 16) {
-      png_set_strip_16(pPNG);
-      png_read_update_info(pPNG, pInfoPNG);
-    }
-    w = png_get_image_width(pPNG, pInfoPNG);
-    h = png_get_image_height(pPNG, pInfoPNG);
-    pRows = new png_bytep[h];
-    const auto cb = png_get_rowbytes(pPNG, pInfoPNG);
-    for (unsigned y = 0u; y < h; ++y)
-      pRows[y] = new png_byte[cb];
-    png_read_image(pPNG, pRows);
-    fclose(fp);
-    png_destroy_read_struct(&pPNG, &pInfoPNG, NULL);
+    (void)read_png(png, argv[1]);
+    w = png.w;
+    h = png.h;
   }
 
-  // Convert bmp.rgb_data or pRows to YUV color planes.
+  // Convert bmp.rgb_data or png to YUV color planes.
   // On the heap, because even a 3 megapixel image overflows the stack.
   const auto cb = w * h;
   auto bufY = new u8[cb];
@@ -116,7 +132,7 @@ LUsage:
 	G = rgb->Green;
 	B = rgb->Blue;
       } else {
-	const auto rgb = pRows[y] + 3*x;
+	const auto rgb = png.pixels + 3*(y*w + x);
 	R = rgb[0];
 	G = rgb[1];
 	B = rgb[2];
@@ -168,7 +184,7 @@ LUsage:
 	rgb->Green = G;
 	rgb->Blue  = B;
       } else {
-	auto rgb = pRows[y] + 3*x;
+	auto rgb = png.pixels + 3*(y*w + x);
 	rgb[0] = R;
 	rgb[1] = G;
 	rgb[2] = B;
@@ -178,18 +194,7 @@ LUsage:
   if (fBMP) {
     bmp.WriteToFile(argv[2]);
   } else {
-    fp = fopen(argv[2], "wb");
-    auto pPNG = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    auto pInfoPNG = png_create_info_struct(pPNG);
-    png_init_io(pPNG, fp);
-    png_set_IHDR(pPNG, pInfoPNG, w, h, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
-    // Don't call png_set_tIME, so no tIME chunk is written, no %tEXtdate:create, %tEXtdate:modify, gAMA, cHRM, bKGD.
-    // Then the output has no timestamp, so it can be diffed against a known-good test output.
-    png_write_info(pPNG, pInfoPNG);
-    png_write_image(pPNG, pRows);
-    png_write_end(pPNG, NULL);
-    fclose(fp);
-    png_destroy_write_struct(&pPNG, &pInfoPNG);
+    write_png(png, argv[2]);
   }
   delete [] bufY;
   delete [] bufU;
